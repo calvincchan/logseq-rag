@@ -28,7 +28,7 @@ async function main() {
   /** QA Chain */
   console.log("Creating QAChain...");
   const chain = RetrievalQAChain.fromLLM(model, store.asRetriever());
-  const res = await chain.call({
+  const res = await chain.invoke({
     query: "When did I apply passport renewal for Kaede?",
   });
   console.log("Answer:");
