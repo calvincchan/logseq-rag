@@ -5,5 +5,12 @@
   "main": "index.js",
   "author": "Calvin C Chan",
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "langchain": "^0.1.37",
+    "ora": "^8.0.1"
+  },
+  "scripts": {
+    "start": "bun index.ts"
+  }
 }
