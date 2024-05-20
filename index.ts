@@ -1,3 +1,5 @@
+import assert from "assert";
+import "dotenv/config";
 import { RetrievalQAChain } from "langchain/chains";
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { TextLoader } from "langchain/document_loaders/fs/text";
@@ -63,11 +65,14 @@ async function main() {
 
 /** Import all md files into documents */
 async function importJournals() {
-  const loader = new DirectoryLoader(LOGSEQ_JOURNAL_PATH, {
+  assert(process.env.LOGSEQ_JOURNALS_PATH);
+  const loader = new DirectoryLoader(process.env.LOGSEQ_JOURNALS_PATH, {
     ".md": (path) => new TextLoader(path),
   });
   const docs = await loader.load();
   return docs;
 }
 
-main().catch(console.error);
+main()
+  .catch(console.error)
+  .finally(() => process.exit(0));
