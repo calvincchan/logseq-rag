@@ -16,13 +16,11 @@ bun install
 
 ## Usage
 
-To start the application, use the following bun script:
+To start the application, first copy `.example.env` to `.example` then use the following bun script:
 
 ```bash
 bun start
 ```
-
-This will run the `bun index.ts` command as defined in the `bun.json` file.
 
 ## Author
 
