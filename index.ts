@@ -9,8 +9,6 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import ora from "ora";
 import readline from "readline";
 
-const LOGSEQ_JOURNAL_PATH = "./journals";
-
 async function main() {
   const stage0 = ora("Loading Journals").start();
   const docs = await importJournals();
