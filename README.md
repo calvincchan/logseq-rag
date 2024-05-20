@@ -16,7 +16,9 @@ bun install
 
 ## Usage
 
-To start the application, first copy `.example.env` to `.example` then use the following bun script:
+1. To start the application, first copy `.example.env` to `.example`
+2. Start `ollama serve` and make sure the `llama3` model is loaded
+3. then use the following bun script:
 
 ```bash
 bun start
