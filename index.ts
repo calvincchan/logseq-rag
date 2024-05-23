@@ -1,10 +1,10 @@
+import { QdrantVectorStore } from "@langchain/qdrant";
 import assert from "assert";
 import "dotenv/config";
 import { RetrievalQAChain } from "langchain/chains";
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { OllamaEmbeddings } from "langchain/embeddings/ollama";
 import { Ollama } from "langchain/llms/ollama";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import ora from "ora";
 import readline from "readline";
 import { LogseqLoader } from "./LogseqLoader";
@@ -24,10 +24,14 @@ async function main() {
   stage1.succeed();
 
   /** Create a MemoryVectorStore from docs for local ollama */
-  const stage2 = ora("Creating MemoryVectorStore").start();
-  const store = await MemoryVectorStore.fromDocuments(
+  const stage2 = ora("Creating vector store").start();
+  const store = await QdrantVectorStore.fromDocuments(
     docs,
-    new OllamaEmbeddings({ model: "llama3" })
+    new OllamaEmbeddings({ model: "llama3" }),
+    {
+      url: "http://localhost",
+      // apiKey: "api-key",
+    }
   );
   stage2.succeed();
 

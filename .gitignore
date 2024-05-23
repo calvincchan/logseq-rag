@@ -1,3 +1,4 @@
 node_modules/
 .env
-journals/*
+journals/
+qdrant_data/
