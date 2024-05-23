@@ -2,12 +2,12 @@ import assert from "assert";
 import "dotenv/config";
 import { RetrievalQAChain } from "langchain/chains";
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
-import { TextLoader } from "langchain/document_loaders/fs/text";
 import { OllamaEmbeddings } from "langchain/embeddings/ollama";
 import { Ollama } from "langchain/llms/ollama";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import ora from "ora";
 import readline from "readline";
+import { LogseqLoader } from "./LogseqLoader";
 
 async function main() {
   const stage0 = ora("Loading Journals").start();
@@ -65,7 +65,7 @@ async function main() {
 async function importJournals() {
   assert(process.env.LOGSEQ_JOURNALS_PATH);
   const loader = new DirectoryLoader(process.env.LOGSEQ_JOURNALS_PATH, {
-    ".md": (path) => new TextLoader(path),
+    ".md": (path) => new LogseqLoader(path),
   });
   const docs = await loader.load();
   return docs;
