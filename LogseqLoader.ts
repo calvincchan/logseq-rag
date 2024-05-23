@@ -21,7 +21,8 @@ export class LogseqLoader extends BaseDocumentLoader {
 
   async load() {
     const text = await this.readFile(this.path);
-    const metadata = { source: this.path, pageTitle: this.getTitle(this.path) };
+    const date = this.getDate(this.path);
+    const metadata = { source: this.path, entryDate: date };
     const parsed = await this.parse(text);
     parsed.forEach((pageContent, i) => {
       if (typeof pageContent !== "string") {
@@ -33,7 +34,7 @@ export class LogseqLoader extends BaseDocumentLoader {
     return parsed.map(
       (pageContent, i) =>
         new Document({
-          pageContent,
+          pageContent: `Date: ${date}\n` + pageContent,
           metadata:
             parsed.length === 1
               ? metadata
@@ -50,11 +51,9 @@ export class LogseqLoader extends BaseDocumentLoader {
     return fs.readFile(path, "utf-8");
   }
 
-  private getTitle(path: string) {
+  private getDate(path: string) {
     return (
-      "Date: " +
-      (path.split("/").pop()?.replace(".md", "")?.replace(/_/g, "-") ??
-        "Unknown")
+      path.split("/").pop()?.replace(".md", "")?.replace(/_/g, "-") ?? "Unknown"
     );
   }
 }

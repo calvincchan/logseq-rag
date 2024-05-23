@@ -10,26 +10,28 @@ import readline from "readline";
 import { LogseqLoader } from "./LogseqLoader";
 
 async function main() {
+  assert(process.env.QDRANT_URL);
+  assert(process.env.OLLAMA_URL);
   const stage0 = ora("Loading Journals").start();
   const docs = await importJournals();
   stage0.succeed();
 
   /** Prepare LLM model with tools */
-  const stage1 = ora("Loading LLM model").start();
+  const stage1 = ora("Loading LLM Model").start();
   const model = new Ollama({
-    baseUrl: "http://127.0.0.1:11434",
+    baseUrl: process.env.OLLAMA_URL,
     model: "llama3",
-    temperature: 0.001,
+    temperature: 0.1,
   });
   stage1.succeed();
 
   /** Create a MemoryVectorStore from docs for local ollama */
-  const stage2 = ora("Creating vector store").start();
+  const stage2 = ora("Creating Vector Store").start();
   const store = await QdrantVectorStore.fromDocuments(
     docs,
     new OllamaEmbeddings({ model: "llama3" }),
     {
-      url: "http://localhost",
+      url: process.env.QDRANT_URL,
       // apiKey: "api-key",
     }
   );
