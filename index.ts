@@ -6,10 +6,13 @@ import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { OllamaEmbeddings } from "langchain/embeddings/ollama";
 import { Ollama } from "langchain/llms/ollama";
 import { ChatPromptTemplate } from "langchain/prompts";
+import { BaseMessage, ChatMessage } from "langchain/schema";
 import { QdrantVectorStore } from "langchain/vectorstores/qdrant";
 import ora from "ora";
 import readline from "readline";
 import { LogseqLoader } from "./LogseqLoader";
+
+const LLM_MODEL = "llama3";
 
 async function main() {
   assert(process.env.QDRANT_URL, "QDRANT_URL is required");
@@ -31,7 +34,7 @@ async function main() {
   const stage2 = ora("Creating Vector Store").start();
   const store = await QdrantVectorStore.fromDocuments(
     docs,
-    new OllamaEmbeddings({ model: "llama3" }),
+    new OllamaEmbeddings({ model: LLM_MODEL }),
     {
       url: process.env.QDRANT_URL,
       // apiKey: "api-key",
@@ -53,10 +56,10 @@ async function main() {
     combineDocsChain,
     retriever,
   });
-  // const chain = RetrievalQAChain.fromLLM(model, retriever);
   stage3.succeed();
 
   /** Interactive prompt */
+  const chatHistory: BaseMessage[] = [];
   for (;;) {
     const rl = readline.createInterface({
       input: process.stdin,
@@ -78,8 +81,10 @@ async function main() {
     }
 
     const spinner = ora("Thinking...").start();
-    const res = await chain.invoke({ input: query });
+    const res = await chain.invoke({ input: query, chat_history: chatHistory });
     spinner.stop();
+    chatHistory.push(new ChatMessage("Question: " + query, "user"));
+    chatHistory.push(new ChatMessage("Answer: " + res.answer, "bot"));
     console.log("✨ Answer: " + res.answer);
   }
 }
