@@ -1,24 +1,26 @@
-import { QdrantVectorStore } from "@langchain/qdrant";
 import assert from "assert";
 import "dotenv/config";
-import { RetrievalQAChain } from "langchain/chains";
+import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
+import { createRetrievalChain } from "langchain/chains/retrieval";
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { OllamaEmbeddings } from "langchain/embeddings/ollama";
 import { Ollama } from "langchain/llms/ollama";
+import { ChatPromptTemplate } from "langchain/prompts";
+import { QdrantVectorStore } from "langchain/vectorstores/qdrant";
 import ora from "ora";
 import readline from "readline";
 import { LogseqLoader } from "./LogseqLoader";
 
 async function main() {
-  assert(process.env.QDRANT_URL);
-  assert(process.env.OLLAMA_URL);
+  assert(process.env.QDRANT_URL, "QDRANT_URL is required");
+  assert(process.env.OLLAMA_URL, "OLLAMA_URL is required");
   const stage0 = ora("Loading Journals").start();
   const docs = await importJournals();
   stage0.succeed();
 
   /** Prepare LLM model with tools */
   const stage1 = ora("Loading LLM Model").start();
-  const model = new Ollama({
+  const llm = new Ollama({
     baseUrl: process.env.OLLAMA_URL,
     model: "llama3",
     temperature: 0.1,
@@ -39,7 +41,19 @@ async function main() {
 
   /** QA Chain */
   const stage3 = ora("Creating QAChain").start();
-  const chain = RetrievalQAChain.fromLLM(model, store.asRetriever());
+  const prompt = ChatPromptTemplate.fromTemplate(
+    `Context:\n{context}.\n\nBased on the context above, answer the user's question: {input}`
+  );
+  const combineDocsChain = await createStuffDocumentsChain({
+    llm,
+    prompt,
+  });
+  const retriever = store.asRetriever();
+  const chain = await createRetrievalChain({
+    combineDocsChain,
+    retriever,
+  });
+  // const chain = RetrievalQAChain.fromLLM(model, retriever);
   stage3.succeed();
 
   /** Interactive prompt */
@@ -48,7 +62,7 @@ async function main() {
       input: process.stdin,
       output: process.stdout,
     });
-    const query = await new Promise((resolve) => {
+    const query = await new Promise<string>((resolve) => {
       rl.question('🤖 Enter your query (or "exit" to quit): ', (answer) => {
         rl.close();
         resolve(answer);
@@ -59,17 +73,20 @@ async function main() {
       break;
     }
 
+    if (!query) {
+      continue;
+    }
+
     const spinner = ora("Thinking...").start();
-    const res = await chain.invoke({ query });
+    const res = await chain.invoke({ input: query });
     spinner.stop();
-    console.log("✨ Answer:");
-    console.log(res.text);
+    console.log("✨ Answer: " + res.answer);
   }
 }
 
 /** Import all md files into documents */
 async function importJournals() {
-  assert(process.env.LOGSEQ_JOURNALS_PATH);
+  assert(process.env.LOGSEQ_JOURNALS_PATH, "LOGSEQ_JOURNALS_PATH is required");
   const loader = new DirectoryLoader(process.env.LOGSEQ_JOURNALS_PATH, {
     ".md": (path) => new LogseqLoader(path),
   });

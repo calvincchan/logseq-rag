@@ -7,7 +7,6 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@langchain/qdrant": "^0.0.4",
     "dotenv": "^16.4.5",
     "langchain": "^0.1.37",
     "ora": "^8.0.1"
