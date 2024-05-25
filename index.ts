@@ -91,10 +91,12 @@ async function main() {
 
 /** Import all md files into documents */
 async function importJournals() {
-  assert(process.env.LOGSEQ_JOURNALS_PATH, "LOGSEQ_JOURNALS_PATH is required");
-  const loader = new DirectoryLoader(process.env.LOGSEQ_JOURNALS_PATH, {
-    ".md": (path) => new LogseqLoader(path),
-  });
+  const loader = new DirectoryLoader(
+    process.env.LOGSEQ_JOURNALS_PATH || "journals/",
+    {
+      ".md": (path) => new LogseqLoader(path),
+    }
+  );
   const docs = await loader.load();
   return docs;
 }

@@ -1,6 +1,6 @@
 # logseq-rag
 
-This project, is a system that integrates the RAG (Retrieval-Augmented Generation) model with Logseq journals and a local Language Model (LLM) via Open Llama.
+This project is a system that integrates the RAG (Retrieval-Augmented Generation) model with Logseq journals and a local Language Model (LLM) via Open Llama.
 
 ## Description
 
@@ -17,7 +17,7 @@ bun install
 ## Usage
 
 1. To start the application, first copy `.example.env` to `.example`
-2. Start `ollama serve` and make sure the `llama3` model is loaded
+2. Run `ollama pull llama3` and then `ollama serve` and make sure the `llama3` model is loaded
 3. then use the following bun script:
 
 ```bash
