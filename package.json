@@ -1,6 +1,6 @@
 {
   "name": "logseq-rag",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "RAG system with Logseq journals and local LLM",
   "main": "index.js",
   "author": "Calvin C Chan",
