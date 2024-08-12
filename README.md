@@ -16,9 +16,10 @@ bun install
 
 ## Usage
 
-1. To start the application, first copy `.example.env` to `.example`
+1. To start the application, first copy `.example.env` to `.env`
 2. Run `ollama pull llama3` and then `ollama serve` and make sure the `llama3` model is loaded
-3. then use the following bun script:
+3. Run the vector database: `docker compose up`
+4. then use the following bun script:
 
 ```bash
 bun start
