@@ -25,7 +25,7 @@ async function main() {
   const stage1 = ora("Loading LLM Model").start();
   const llm = new Ollama({
     baseUrl: process.env.OLLAMA_URL,
-    model: "llama3",
+    model: LLM_MODEL,
     temperature: 0.1,
   });
   stage1.succeed();
